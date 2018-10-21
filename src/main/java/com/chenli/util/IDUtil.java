@@ -1,5 +1,7 @@
 package com.chenli.util;
 
+import java.util.UUID;
+
 /**
  * <p>
  * <p>FileName: com.chenli.util</p>
@@ -8,4 +10,8 @@ package com.chenli.util;
  * @author <a href="mailto:chenli2767@qianmi.com">of2767-陈笠</a>
  */
 public class IDUtil {
+
+    public static String randomId() {
+        return UUID.randomUUID().toString().split("-")[0];
+    }
 }

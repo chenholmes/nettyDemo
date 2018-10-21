@@ -1,14 +1,17 @@
 package com.chenli.client;
 
-import com.chenli.client.handler.LoginResponseHandler;
-import com.chenli.client.handler.MessageResponseHandler;
+import com.chenli.client.console.ConsoleCommandManager;
+import com.chenli.client.console.LoginConsoleCommand;
+import com.chenli.client.handler.*;
 import com.chenli.codec.PacketDecoder;
 import com.chenli.codec.PacketEncoder;
-import com.chenli.protocol.PacketCodeC;
+import com.chenli.codec.Spliter;
+import com.chenli.protocol.request.LoginRequestPacket;
 import com.chenli.protocol.request.MessageRequestPacket;
-import com.chenli.util.LoginUtil;
+import com.chenli.server.handler.IMIdleStateHandler;
+import com.chenli.server.handler.JoinGroupRequestHandler;
+import com.chenli.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -45,10 +48,18 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new IMIdleStateHandler());
+                        ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginResponseHandler());
                         ch.pipeline().addLast(new MessageResponseHandler());
+                        ch.pipeline().addLast(new CreateGroupResponseHandler());
+                        ch.pipeline().addLast(new JoinGroupResponseHandler());
+                        ch.pipeline().addLast(new ListGroupMembersResponseHandler());
+                        ch.pipeline().addLast(new QuitGroupResponseHandler());
+                        ch.pipeline().addLast(new GroupMessageResponseHandler());
                         ch.pipeline().addLast(new PacketEncoder());
+                        ch.pipeline().addLast(new HeartBeatTimerHandler());
                     }
                 });
         connect(bootstrap, HOST, PORT, MAX_RETRY);
@@ -73,19 +84,25 @@ public class NettyClient {
     }
 
     private static void startConsoleThread(Channel channel) {
+        Scanner sc = new Scanner(System.in);
+        LoginConsoleCommand loginConsoleCommand = new LoginConsoleCommand();
+        ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
+
         new Thread(() -> {
             while (!Thread.interrupted()) {
-                if (LoginUtil.hasLogin(channel)) {
-                    System.out.println("输入消息发送至服务端: ");
-                    Scanner scanner = new Scanner(System.in);
-                    String message = scanner.nextLine();
-
-                    MessageRequestPacket messageRequestPacket = new MessageRequestPacket();
-                    messageRequestPacket.setMessage(message);
-
-                    channel.writeAndFlush(messageRequestPacket);
+                if(!SessionUtil.hasLogin(channel)) {
+                   loginConsoleCommand.exec(sc,channel);
+                } else {
+                   consoleCommandManager.exec(sc,channel);
                 }
             }
         }).start();
+    }
+
+    private static void waitForLoginResponse() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
     }
 }

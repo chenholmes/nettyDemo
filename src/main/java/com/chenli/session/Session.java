@@ -1,5 +1,10 @@
 package com.chenli.session;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 /**
  * <p>
  * <p>FileName: com.chenli.session</p>
@@ -7,5 +12,13 @@ package com.chenli.session;
  *
  * @author <a href="mailto:chenli2767@qianmi.com">of2767-陈笠</a>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class Session {
+
+    private String userId;
+
+    private String userName;
 }

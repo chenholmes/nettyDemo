@@ -2,7 +2,9 @@ package com.chenli.protocol.request;
 
 import com.chenli.protocol.Packet;
 import com.chenli.protocol.command.Command;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>
@@ -12,7 +14,11 @@ import lombok.Data;
  * @author <a href="mailto:chenli2767@qianmi.com">of2767-陈笠</a>
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class MessageRequestPacket extends Packet {
+
+    private String toUserId;
 
     private String message;
 

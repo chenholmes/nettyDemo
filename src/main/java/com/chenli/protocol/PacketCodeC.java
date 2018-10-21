@@ -1,9 +1,7 @@
 package com.chenli.protocol;
 
-import com.chenli.protocol.request.LoginRequestPacket;
-import com.chenli.protocol.request.MessageRequestPacket;
-import com.chenli.protocol.response.LoginResponsePacket;
-import com.chenli.protocol.response.MessageResponsePacket;
+import com.chenli.protocol.request.*;
+import com.chenli.protocol.response.*;
 import com.chenli.serialize.Serializer;
 import com.chenli.serialize.SerializerAlogrithm;
 import com.chenli.serialize.impl.JSONSerializer;
@@ -36,6 +34,20 @@ public class PacketCodeC {
         packetTypeMap.put(LOGIN_RESPONSE, LoginResponsePacket.class);
         packetTypeMap.put(MESSAGE_REQUEST, MessageRequestPacket.class);
         packetTypeMap.put(MESSAGE_RESPONSE, MessageResponsePacket.class);
+        packetTypeMap.put(CREATE_GROUP_REQUEST, CreateGroupRequestPacket.class);
+        packetTypeMap.put(CREATE_GROUP_RESPONSE, CreateGroupResponsePacket.class);
+        packetTypeMap.put(LOGOUT_REQUEST, LogoutRequestPacket.class);
+        packetTypeMap.put(LOGOUT_RESPONSE, LogoutResponsePacket.class);
+        packetTypeMap.put(JOIN_GROUP_REQUEST, JoinGroupRequestPacket.class);
+        packetTypeMap.put(JOIN_GROUP_RESPONSE, JoinGroupResponsePacket.class);
+        packetTypeMap.put(QUIT_GROUP_REQUEST,QuitGroupRequestPacket.class);
+        packetTypeMap.put(QUIT_GROUP_RESPONSE,QuitGroupResponsePacket.class);
+        packetTypeMap.put(LIST_GROUP_MEMBERS_REQUEST,ListGroupMembersRequestPacket.class);
+        packetTypeMap.put(LIST_GROUP_MEMBERS_RESPONSE,ListGroupMembersResponsePacket.class);
+        packetTypeMap.put(GROUP_MESSAGE_REQUEST,GroupMessageRequestPacket.class);
+        packetTypeMap.put(GROUP_MESSAGE_RESPONSE,GroupMessageResponsePacket.class);
+        packetTypeMap.put(HEARTBEAT_REQUEST,HeartBeatRequestPacket.class);
+        packetTypeMap.put(HEARTBEAT_RESPONSE,HeartBeatResponsePacket.class);
 
         serializerMap = new HashMap<>();
         Serializer serializer = new JSONSerializer();

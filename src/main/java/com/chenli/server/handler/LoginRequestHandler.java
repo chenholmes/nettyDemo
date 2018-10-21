@@ -1,13 +1,15 @@
 package com.chenli.server.handler;
 
-import com.chenli.protocol.PacketCodeC;
 import com.chenli.protocol.request.LoginRequestPacket;
 import com.chenli.protocol.response.LoginResponsePacket;
-import io.netty.buffer.ByteBuf;
+import com.chenli.session.Session;
+import com.chenli.util.SessionUtil;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * <p>
@@ -16,7 +18,13 @@ import java.util.Date;
  *
  * @author <a href="mailto:chenli2767@qianmi.com">of2767-陈笠</a>
  */
+@ChannelHandler.Sharable
 public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginRequestPacket> {
+
+    public static final LoginRequestHandler INSTANCE = new LoginRequestHandler();
+
+    protected LoginRequestHandler() {
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, LoginRequestPacket loginRequestPacket) throws Exception {
@@ -24,9 +32,14 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
         LoginResponsePacket loginResponsePacket = new LoginResponsePacket();
         loginResponsePacket.setVersion(loginRequestPacket.getVersion());
-        if(valid(loginRequestPacket)) {
+        loginResponsePacket.setUserName(loginRequestPacket.getUsername());
+
+        if (valid(loginRequestPacket)) {
             loginResponsePacket.setSuccess(true);
-            System.out.println(new Date() + ": 登录成功!");
+            String userId = randomUserId();
+            loginResponsePacket.setUserId(userId);
+            SessionUtil.bindSession(new Session(userId, loginRequestPacket.getUsername()), channelHandlerContext.channel());
+            System.out.println(new Date() + ":" + loginRequestPacket.getUsername() + " 登录成功!");
         } else {
             loginResponsePacket.setSuccess(false);
             loginResponsePacket.setReason("账号密码校验失败");
@@ -37,5 +50,10 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
     private boolean valid(LoginRequestPacket loginRequestPacket) {
         return true;
+    }
+
+    private static String randomUserId() {
+        return UUID.randomUUID().toString().split("-")[0];
+
     }
 }
